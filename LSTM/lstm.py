@@ -81,26 +81,35 @@ le = preprocessing.LabelEncoder()
 y_train_binary = le.fit_transform(y_train_binary)
 y_test_binary = le.fit_transform(y_test_binary)
 # Input Word Embeddings
-vocab_size = 500
-encoded_docs = [one_hot(d, vocab_size) for d in X]
-max_length = 500
-padded_docs = pad_sequences(encoded_docs, maxlen = max_length, padding = 'post')
-print(padded_docs.shape)
-# Test
-vocab_size = 500
-encoded_docs_test = [one_hot(d, vocab_size) for d in X_test]
-max_length = 500
-padded_docs_test = pad_sequences(encoded_docs_test, maxlen = max_length, padding = 'post')
+# vocab_size = 500
+# encoded_docs = [one_hot(d, vocab_size) for d in X]
+# max_length = 500
+# padded_docs = pad_sequences(encoded_docs, maxlen = max_length, padding = 'post')
+# print(padded_docs.shape)
+# # Test
+# vocab_size = 500
+# encoded_docs_test = [one_hot(d, vocab_size) for d in X_test]
+# max_length = 500
+# padded_docs_test = pad_sequences(encoded_docs_test, maxlen = max_length, padding = 'post')
+tfv = TfidfVectorizer(min_df=3,  max_features=None,
+            strip_accents='unicode', analyzer='word',token_pattern=r'\w{1,}',
+            ngram_range=(1, 3), use_idf=1,smooth_idf=1,sublinear_tf=1,
+            stop_words = 'english')
+tfv.fit(list(X)+list(X_test))
+x_train_tfv = tfv.transform(X)
+x_test_tfv = tfv.transform(X_test)
+# x_train_tfv = np.asarray(x_train_tfv)
+# x_test_tfv = np.asarray(x_test_tfv)
 
 # LSTM Model Model
 model = Sequential()
-model.add(Embedding(500, 32, input_length=500))
+model.add(Embedding(100, 32))
 model.add(LSTM(32))
 model.add(Dense(1, activation = 'sigmoid'))
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
 print(model.summary())
 
-model.fit(padded_docs, y_train_binary,validation_data=(padded_docs_test,y_test_binary), epochs=10, verbose=1)
-
+model.fit(x_train_tfv, y_train_binary,validation_data=(x_test_tfv,y_test_binary), epochs=10, verbose=1)
+model.save('../lstm.h5')
 # Test data details
 # loss: 0.6858 - acc: 0.5618 - val_loss: 0.6855 - val_acc: 0.5632

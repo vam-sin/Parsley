@@ -1,7 +1,7 @@
 # Libraries
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
@@ -83,12 +83,12 @@ ctv.fit(list(X) + list(X_test))
 xtrain_ctv =  ctv.transform(X)
 xtest_ctv = ctv.transform(X_test)
 
-# Logistic Regression Model
-logmodel = LogisticRegression()
-logmodel.fit(xtrain_ctv, y_train_binary)
-predictions = logmodel.predict(xtest_ctv)
+# NB Model
+nbmodel = MultinomialNB()
+nbmodel.fit(xtrain_ctv, y_train_binary)
+predictions = nbmodel.predict(xtest_ctv)
 print(accuracy_score(y_test_binary,predictions))
 
 # Test data details
-# 0.6097946287519748 (With TFIDF)
-# 0.6169036334913112 (With CountVectorizer)
+# 0.6058451816745656 (With TFIDF)
+# 0.6003159557661928 (With CountVectorizer)
