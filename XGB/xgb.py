@@ -5,11 +5,13 @@ import numpy as np
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 stop_words = stopwords.words('english')
-from sklearn.linear_model import LogisticRegression
+from sklearn import svm
 from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
 from keras.preprocessing.text import one_hot
 from keras.preprocessing.sequence import pad_sequences
+import nltk
+import xgboost as xgb
 #Functions
 # Convert to binary
 def convert_to_bin(values):
@@ -84,11 +86,11 @@ max_length = 500
 padded_docs_test = pad_sequences(encoded_docs_test, maxlen = max_length, padding = 'post')
 
 
-# Logistic Regression Model
-logmodel = LogisticRegression()
-logmodel.fit(padded_docs, y_train_binary)
-predictions = logmodel.predict(padded_docs_test)
-print(accuracy_score(y_test_binary,predictions))
+
+# XGB
+model = xgb.XGBClassifier(random_state = 1, learning_rate = 0.01)
+model.fit(padded_docs, y_train_binary)
+print(model.score(padded_docs_test, y_test_binary))
 
 # Test data details
-# 0.54739336492891
+# 0.5497630331753555

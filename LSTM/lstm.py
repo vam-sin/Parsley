@@ -6,10 +6,19 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 stop_words = stopwords.words('english')
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
 from sklearn import preprocessing
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+import re
+from keras.models import Sequential
+from keras.layers import Embedding, Dense, LSTM, Flatten
 from keras.preprocessing.text import one_hot
 from keras.preprocessing.sequence import pad_sequences
+from nltk.stem import PorterStemmer
+stemmer= PorterStemmer()
+vectorizer = TfidfVectorizer()
+import nltk
 #Functions
 # Convert to binary
 def convert_to_bin(values):
@@ -84,11 +93,17 @@ max_length = 500
 padded_docs_test = pad_sequences(encoded_docs_test, maxlen = max_length, padding = 'post')
 
 
-# Logistic Regression Model
-logmodel = LogisticRegression()
-logmodel.fit(padded_docs, y_train_binary)
-predictions = logmodel.predict(padded_docs_test)
-print(accuracy_score(y_test_binary,predictions))
+
+
+# LSTM Model Model
+model = Sequential()
+model.add(Embedding(500, 32, input_length=500))
+model.add(LSTM(32))
+model.add(Dense(1, activation = 'sigmoid'))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
+print(model.summary())
+
+model.fit(padded_docs, y_train_binary,validation_data=(padded_docs_test,y_test_binary), epochs=10, verbose=1)
 
 # Test data details
-# 0.54739336492891
+# loss: 0.6858 - acc: 0.5618 - val_loss: 0.6855 - val_acc: 0.5632
