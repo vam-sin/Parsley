@@ -1,5 +1,6 @@
 # Ensemble of LR, LSTM, XGB Models
 # Tasks Left
+# Better Text to Number conversion
 # Add the justification column.
 # Add the features column.
 # get the accuracy values for the six way classifier also.

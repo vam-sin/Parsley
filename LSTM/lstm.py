@@ -92,9 +92,6 @@ encoded_docs_test = [one_hot(d, vocab_size) for d in X_test]
 max_length = 500
 padded_docs_test = pad_sequences(encoded_docs_test, maxlen = max_length, padding = 'post')
 
-
-
-
 # LSTM Model Model
 model = Sequential()
 model.add(Embedding(500, 32, input_length=500))

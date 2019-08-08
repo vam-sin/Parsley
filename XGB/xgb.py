@@ -85,8 +85,6 @@ encoded_docs_test = [one_hot(d, vocab_size) for d in X_test]
 max_length = 500
 padded_docs_test = pad_sequences(encoded_docs_test, maxlen = max_length, padding = 'post')
 
-
-
 # XGB
 model = xgb.XGBClassifier(random_state = 1, learning_rate = 0.01)
 model.fit(padded_docs, y_train_binary)
