@@ -3,6 +3,13 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn import preprocessing
+from tqdm import tqdm
+from nltk import word_tokenize
+from nltk.corpus import stopwords
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
+stop_words = stopwords.words('english')
 from sklearn.metrics import accuracy_score
 from scipy.sparse import csr_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
@@ -19,6 +26,22 @@ def convert_to_bin(values):
 
     return bin
 
+def sent2vec(s):
+    words = str(s).lower()
+    words = word_tokenize(words)
+    words = [w for w in words if not w in stop_words]
+    words = [w for w in words if w.isalpha()]
+    M = []
+    for w in words:
+        try:
+            M.append(embeddings_index[w])
+        except:
+            continue
+    M = np.array(M)
+    v = M.sum(axis=0)
+    if type(v) != np.ndarray:
+        return np.zeros(300)
+    return v / np.sqrt((v ** 2).sum())
 
 # Import Train dataset
 train = pd.read_csv('../dataset/train2.tsv', delimiter='\t', encoding='utf-8')
@@ -106,6 +129,20 @@ ctv.fit(list(X) + list(X_test))
 xtrain_ctv =  ctv.transform(X)
 xtrain_ctv = xtrain_ctv.astype(float)
 xtest_ctv = ctv.transform(X_test)
+
+# Word2Vec
+embeddings_index = {}
+f = open('../glove.42B.300d.txt', encoding='utf8')
+for line in tqdm(f):
+    values = line.split()
+    word = ''.join(values[:-300])
+    coefs = np.asarray(values[-300:], dtype='float32')
+    embeddings_index[word] = coefs
+f.close()
+
+xtrain_glove = [sent2vec(x) for x in tqdm(X)]
+xtest_glove = [sent2vec(x) for x in tqdm(X_test)]
+
 # print(xtrain_ctv.shape)
 # sent = np.concatenate((xtrain_sent_1, xtrain_sent_2), axis=1)
 # print(sent.shape)
@@ -122,9 +159,10 @@ xtest_ctv = ctv.transform(X_test)
 
 # Logistic Regression Model
 logmodel = LogisticRegression()
-logmodel.fit(xtrain_ctv, y_train_binary)
-predictions = logmodel.predict(xtest_ctv)
+logmodel.fit(xtrain_glove, y_train_binary)
+predictions = logmodel.predict(xtest_glove)
 print(accuracy_score(y_test_binary,predictions))
 
 # Test data details
 # 0.6216429699842022 (With CountVectorizer)
+# 0.6058451816745656 (With GloVe)
