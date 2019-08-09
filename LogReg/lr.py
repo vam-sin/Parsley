@@ -1,15 +1,17 @@
 # Libraries
 import pandas as pd
 import numpy as np
+from pandas import DataFrame
 from sklearn.linear_model import LogisticRegression
 from sklearn import preprocessing
 from tqdm import tqdm
 from nltk import word_tokenize
 from nltk.corpus import stopwords
-import nltk
-nltk.download('stopwords')
-nltk.download('punkt')
-stop_words = stopwords.words('english')
+from scipy.sparse.linalg import svds, eigs
+# import nltk
+# nltk.download('stopwords')
+# nltk.download('punkt')
+# stop_words = stopwords.words('english')
 from sklearn.metrics import accuracy_score
 from scipy.sparse import csr_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
@@ -57,11 +59,11 @@ xtest_sent_1 = []
 xtest_sent_2 = []
 analyzer = SentimentIntensityAnalyzer()
 for d in x_test:
-    # result = analyzer.polarity_scores(str(d[0]))
-    # # print(str(d[0]))
-    # xtest_sent_1.append(result['compound'])
-    # result = analyzer.polarity_scores(str(d[1]))
-    # xtest_sent_2.append(result['compound'])
+    result = analyzer.polarity_scores(str(d[0]))
+    # print(str(d[0]))
+    xtest_sent_1.append(result['compound'])
+    result = analyzer.polarity_scores(str(d[1]))
+    xtest_sent_2.append(result['compound'])
     d = str(d[0])
     d = d + str(d[1])
     X_test.append(d)
@@ -79,11 +81,11 @@ xtrain_sent_1 = []
 xtrain_sent_2 = []
 analyzer = SentimentIntensityAnalyzer()
 for d in x_train:
-    # result = analyzer.polarity_scores(str(d[0]))
-    # # print(str(d[0]))
-    # xtrain_sent_1.append(result['compound'])
-    # result = analyzer.polarity_scores(str(d[1]))
-    # xtrain_sent_2.append(result['compound'])
+    result = analyzer.polarity_scores(str(d[0]))
+    # print(str(d[0]))
+    xtrain_sent_1.append(result['compound'])
+    result = analyzer.polarity_scores(str(d[1]))
+    xtrain_sent_2.append(result['compound'])
     d = str(d[0])
     d = d + str(d[1])
     X.append(d)
@@ -114,13 +116,13 @@ y_train_binary = le.fit_transform(y_train_binary)
 y_test_binary = le.fit_transform(y_test_binary)
 
 # TfIDf
-tfv = TfidfVectorizer(min_df=3,  max_features=None,
-            strip_accents='unicode', analyzer='word',token_pattern=r'\w{1,}',
-            ngram_range=(1, 3), use_idf=1,smooth_idf=1,sublinear_tf=1,
-            stop_words = 'english')
-tfv.fit(list(X)+list(X_test))
-x_train_tfv = tfv.transform(X)
-x_test_tfv = tfv.transform(X_test)
+# tfv = TfidfVectorizer(min_df=3,  max_features=None,
+#             strip_accents='unicode', analyzer='word',token_pattern=r'\w{1,}',
+#             ngram_range=(1, 3), use_idf=1,smooth_idf=1,sublinear_tf=1,
+#             stop_words = 'english')
+# tfv.fit(list(X)+list(X_test))
+# x_train_tfv = tfv.transform(X)
+# x_test_tfv = tfv.transform(X_test)
 
 # CountVectorizer
 ctv = CountVectorizer(analyzer='word',token_pattern=r'\w{1,}',
@@ -129,7 +131,6 @@ ctv.fit(list(X) + list(X_test))
 xtrain_ctv =  ctv.transform(X)
 xtrain_ctv = xtrain_ctv.astype(float)
 xtest_ctv = ctv.transform(X_test)
-
 # Word2Vec
 # embeddings_index = {}
 # f = open('../glove.42B.300d.txt', encoding='utf8')
