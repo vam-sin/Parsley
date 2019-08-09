@@ -1,24 +1,10 @@
 # Libraries
 import pandas as pd
-from pandas import DataFrame
 import numpy as np
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-stop_words = stopwords.words('english')
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix
 from sklearn import preprocessing
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.feature_extraction.text import TfidfVectorizer
-import re
 from keras.models import Sequential
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from keras.layers import Embedding, Dense, LSTM, Flatten
-from keras.preprocessing.text import one_hot
-from keras.preprocessing.sequence import pad_sequences
-from nltk.stem import PorterStemmer
-stemmer= PorterStemmer()
-vectorizer = TfidfVectorizer()
-import nltk
 #Functions
 # Convert to binary
 def convert_to_bin(values):
@@ -41,12 +27,13 @@ train = pd.read_csv('../dataset/train2.tsv', delimiter='\t', encoding='utf-8')
 
 # Test
 test = pd.read_csv('../dataset/test2.tsv', delimiter='\t', encoding='utf-8')
-x_test = test.iloc[:,3:4]
+x_test = test.iloc[:,[3,15]]
 x_test = np.asarray(x_test)
 x_test = x_test.tolist()
 X_test = []
 for d in x_test:
     d = str(d[0])
+    d = d + str(d[1])
     X_test.append(d)
 
 y_test = test.iloc[:,2:3]
@@ -54,12 +41,13 @@ y_test = np.asarray(y_test)
 
 # X and Y (Train)
 # x_train = train.iloc[:,[3,15]] (statement & justification)
-x_train = train.iloc[:, 3:4]
+x_train = train.iloc[:, [3,15]]
 x_train = np.asarray(x_train)
 x_train = x_train.tolist()
 X = []
 for d in x_train:
     d = str(d[0])
+    d = d + str(d[1])
     X.append(d)
 # print(X)
 # x_train = np.asarray(x_train)
@@ -80,17 +68,9 @@ y_test_binary = np.asarray(y_test_binary)
 le = preprocessing.LabelEncoder()
 y_train_binary = le.fit_transform(y_train_binary)
 y_test_binary = le.fit_transform(y_test_binary)
-# Input Word Embeddings
-# vocab_size = 500
-# encoded_docs = [one_hot(d, vocab_size) for d in X]
-# max_length = 500
-# padded_docs = pad_sequences(encoded_docs, maxlen = max_length, padding = 'post')
-# print(padded_docs.shape)
-# # Test
-# vocab_size = 500
-# encoded_docs_test = [one_hot(d, vocab_size) for d in X_test]
-# max_length = 500
-# padded_docs_test = pad_sequences(encoded_docs_test, maxlen = max_length, padding = 'post')
+
+# Input Text
+# TFIDF
 tfv = TfidfVectorizer(min_df=3,  max_features=None,
             strip_accents='unicode', analyzer='word',token_pattern=r'\w{1,}',
             ngram_range=(1, 3), use_idf=1,smooth_idf=1,sublinear_tf=1,
@@ -98,18 +78,23 @@ tfv = TfidfVectorizer(min_df=3,  max_features=None,
 tfv.fit(list(X)+list(X_test))
 x_train_tfv = tfv.transform(X)
 x_test_tfv = tfv.transform(X_test)
-# x_train_tfv = np.asarray(x_train_tfv)
-# x_test_tfv = np.asarray(x_test_tfv)
+
+# CountVectorizer
+ctv = CountVectorizer(analyzer='word',token_pattern=r'\w{1,}',
+            ngram_range=(1, 3), stop_words = 'english')
+ctv.fit(list(X) + list(X_test))
+xtrain_ctv =  ctv.transform(X)
+xtest_ctv = ctv.transform(X_test)
 
 # LSTM Model Model
 model = Sequential()
-model.add(Embedding(100, 32))
-model.add(LSTM(32))
+model.add(Embedding(50, 32))
+model.add(LSTM(16))
 model.add(Dense(1, activation = 'sigmoid'))
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
 print(model.summary())
 
-model.fit(x_train_tfv, y_train_binary,validation_data=(x_test_tfv,y_test_binary), epochs=10, verbose=1)
+model.fit(xtrain_ctv, y_train_binary,validation_data=(xtest_ctv,y_test_binary), epochs=10, verbose=1)
 model.save('../lstm.h5')
 # Test data details
 # loss: 0.6858 - acc: 0.5618 - val_loss: 0.6855 - val_acc: 0.5632
