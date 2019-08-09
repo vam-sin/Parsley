@@ -209,7 +209,8 @@ earlystop = EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 model.fit(xtrain_pad, y_train_binary,batch_size=64, validation_data=(xtest_pad,y_test_binary), epochs=10, verbose=1, callbacks=[earlystop])
 model.save('../gru.h5')
-# Test data details
+# Test data details(All with GloVe)
 # Dense: loss: 0.0978 - acc: 0.9623 - val_loss: 1.6075 - val_acc: 0.5640 (Overfitting)
 # LSTM: loss: 0.6420 - acc: 0.6296 - val_loss: 0.6560 - val_acc: 0.6051
 # BiLSTM: loss: 0.6732 - acc: 0.5792 - val_loss: 0.6623 - val_acc: 0.5948
+# GRU: loss: 0.6592 - acc: 0.6101 - val_loss: 0.6561 - val_acc: 0.5987

@@ -131,17 +131,17 @@ xtrain_ctv = xtrain_ctv.astype(float)
 xtest_ctv = ctv.transform(X_test)
 
 # Word2Vec
-embeddings_index = {}
-f = open('../glove.42B.300d.txt', encoding='utf8')
-for line in tqdm(f):
-    values = line.split()
-    word = ''.join(values[:-300])
-    coefs = np.asarray(values[-300:], dtype='float32')
-    embeddings_index[word] = coefs
-f.close()
-
-xtrain_glove = [sent2vec(x) for x in tqdm(X)]
-xtest_glove = [sent2vec(x) for x in tqdm(X_test)]
+# embeddings_index = {}
+# f = open('../glove.42B.300d.txt', encoding='utf8')
+# for line in tqdm(f):
+#     values = line.split()
+#     word = ''.join(values[:-300])
+#     coefs = np.asarray(values[-300:], dtype='float32')
+#     embeddings_index[word] = coefs
+# f.close()
+#
+# xtrain_glove = [sent2vec(x) for x in tqdm(X)]
+# xtest_glove = [sent2vec(x) for x in tqdm(X_test)]
 
 # print(xtrain_ctv.shape)
 # sent = np.concatenate((xtrain_sent_1, xtrain_sent_2), axis=1)
@@ -159,8 +159,8 @@ xtest_glove = [sent2vec(x) for x in tqdm(X_test)]
 
 # Logistic Regression Model
 logmodel = LogisticRegression()
-logmodel.fit(xtrain_glove, y_train_binary)
-predictions = logmodel.predict(xtest_glove)
+logmodel.fit(xtrain_ctv, y_train_binary)
+predictions = logmodel.predict(xtest_ctv)
 print(accuracy_score(y_test_binary,predictions))
 
 # Test data details

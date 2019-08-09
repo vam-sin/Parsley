@@ -1,6 +1,8 @@
-# Ensemble of LR, LSTM, XGB Models
+# Ensemble of LR, DL, XGB, Adaboost and NaiveBayes Models
 # Tasks Left
-# Better Text to Number conversion
+# Better Text to Number conversion (Done)
+# Ensemble Model creation (Stacking, take all the outputs from the base learners and make an nn with a dense layer which
+# learns from them to give the output)
 # Plots in 2D
 # Add the features column.
 # get the accuracy values for the six way classifier also.
@@ -11,6 +13,7 @@ from sklearn.linear_model import LogisticRegression
 from statistics import mode
 from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
+from sklearn.ensemble import AdaBoostClassifier
 import xgboost as xgb
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -102,6 +105,14 @@ print("XGB")
 xgb_model = xgb.XGBClassifier(max_depth=7, n_estimators=200, colsample_bytree=0.8,
                         subsample=0.8, nthread=10, learning_rate=0.1)
 xgb_model.fit(xtrain_ctv, y_train_binary)
+
+# Adaboost
+# print("Adaboost")
+# clf = AdaBoostClassifier(n_estimators=100)
+# clf.fit(xtrain_ctv, y_train_binary)
+# y_pred = clf.predict(xtest_ctv)
+# print(accuracy_score(y_test_binary, y_pred))
+# 0.590047393364929 (Accuracy)
 
 # LSTM
 # print(model.summary())
