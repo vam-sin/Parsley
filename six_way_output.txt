@@ -1,0 +1,2 @@
+Output is 5
+0,1,2,3,4,5 correspond to ['barely-true', 'false', 'half-true', 'mostly-true', 'pants-fire', 'true'] respectively

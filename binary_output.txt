@@ -1,0 +1,2 @@
+Output is 1
+0,1 correspond to ['false', 'true'] respectively
